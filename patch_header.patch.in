@@ -1,0 +1,36 @@
+diff --git a/drivers/gpu/drm/panel/Kconfig b/drivers/gpu/drm/panel/Kconfig
+index af1402d83d51..a2d6f56fdc5e 100644
+--- a/drivers/gpu/drm/panel/Kconfig
++++ b/drivers/gpu/drm/panel/Kconfig
+@@ -509,6 +509,14 @@ config DRM_PANEL_SITRONIX_ST7701
+ 	  ST7701 controller for 480X864 LCD panels with MIPI/RGB/SPI
+ 	  system interfaces.
+
++config DRM_PANEL_SITRONIX_ST7701S
++	tristate "Sitronix ST7701S panel driver"
++	depends on GPIOLIB && OF && SPI
++	depends on BACKLIGHT_CLASS_DEVICE
++	help
++	  Say Y here if you want to enable support for the Sitronix
++	  ST7701S controller for LCD panels like the Jinglitai JLT4013A.
++
+ config DRM_PANEL_SITRONIX_ST7703
+ 	tristate "Sitronix ST7703 based MIPI touchscreen panels"
+ 	depends on OF
+diff --git a/drivers/gpu/drm/panel/Makefile b/drivers/gpu/drm/panel/Makefile
+index c8132050bcec..3133c43539fe 100644
+--- a/drivers/gpu/drm/panel/Makefile
++++ b/drivers/gpu/drm/panel/Makefile
+@@ -52,6 +52,7 @@ obj-$(CONFIG_DRM_PANEL_SHARP_LQ101R1SX01) += panel-sharp-lq101r1sx01.o
+ obj-$(CONFIG_DRM_PANEL_SHARP_LS037V7DW01) += panel-sharp-ls037v7dw01.o
+ obj-$(CONFIG_DRM_PANEL_SHARP_LS043T1LE01) += panel-sharp-ls043t1le01.o
+ obj-$(CONFIG_DRM_PANEL_SITRONIX_ST7701) += panel-sitronix-st7701.o
++obj-$(CONFIG_DRM_PANEL_SITRONIX_ST7701S) += panel-sitronix-st7701s.o
+ obj-$(CONFIG_DRM_PANEL_SITRONIX_ST7703) += panel-sitronix-st7703.o
+ obj-$(CONFIG_DRM_PANEL_SITRONIX_ST7789V) += panel-sitronix-st7789v.o
+ obj-$(CONFIG_DRM_PANEL_SONY_ACX424AKP) += panel-sony-acx424akp.o
+diff --git a/drivers/gpu/drm/panel/panel-sitronix-st7701s.c b/drivers/gpu/drm/panel/panel-sitronix-st7701s.c
+new file mode 100644
+index 000000000000..dab8de1fb67f
+--- /dev/null
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701s.c
