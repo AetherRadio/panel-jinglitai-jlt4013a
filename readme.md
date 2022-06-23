@@ -8,7 +8,8 @@ contents of the `struct of_device_id st7701s_of_match[]` array).
 
 You can build the module directly, or you can use the script
 `generate_kernel_patch.py` to generate a patch file that can be used to patch a
-Linux Kernel source tree.
+Linux Kernel source tree. This will give you a KConfig option called
+`DRM_PANEL_SITRONIX_ST7701S` next to the other related ones.
 
 ## Important information
 
