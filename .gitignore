@@ -1294,3 +1294,6 @@ FodyWeavers.xsd
 .cache/
 .VSCodeCounter/
 .scrap/
+
+### Patches created by the generation script ###
+*.patch
