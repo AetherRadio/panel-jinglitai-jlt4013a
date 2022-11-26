@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Driver for the Jinglitai JLT4013A LCD Panel, or others using the
- * Sitronix ST7701S controller.
+ * Driver for the Jinglitai JLT4013A LCD Panel.
  *
  * Copyright (C) Rui Oliveira 2022
  */
 
 #include <linux/delay.h>
 #include <linux/module.h>
+#include <linux/kernel.h>
 #include <linux/mod_devicetable.h>
 #include <drm/drm_panel.h>
 #include <drm/drm_modes.h>
@@ -18,67 +18,55 @@
 #include <linux/gpio/consumer.h>
 #include <linux/media-bus-format.h>
 
-static const struct of_device_id st7701s_of_match[] = {
-	{ .compatible = "sitronix,st7701s" },
+static const struct of_device_id jlt4013a_of_match[] = {
 	{ .compatible = "jinglitai,jlt4013a" },
 	{ /* sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, st7701s_of_match);
+MODULE_DEVICE_TABLE(of, jlt4013a_of_match);
 
-// DTB that we found for this driver,
-// from the Xiegu X6100
-// panel@0
-// {
-//  compatible = "jinglitai,jlt4013a";;
-//  reg = <0x00>;
-//  power-supply = <0x1b>;
-//  reset-gpios = <0x45 0x00 0x0b 0x01>;
-//  dcx-gpios = <0x45 0x00 0x0a 0x01>;
-//  backlight = <0x46>;
-//  spi-max-frequency = <0x186a0>;
-//
-//  port {
-//        endpoint {
-//                  remote-endpoint = <0x47>;
-//                  phandle = <0x0c>;
-//       };
-//  };
-// };
-
-struct st7701s {
+struct jlt4013a {
 	struct drm_panel panel;
 	struct spi_device *spi;
 	struct gpio_desc *reset;
 	struct regulator *supply;
 };
 
-static inline struct st7701s *panel_to_st7701s(struct drm_panel *panel)
+static inline struct jlt4013a *panel_to_jlt4013a(struct drm_panel *panel)
 {
-	return container_of(panel, struct st7701s, panel);
+	return container_of(panel, struct jlt4013a, panel);
 }
 
-static int st7701s_prepare(struct drm_panel *panel)
+static int jlt4013a_prepare(struct drm_panel *panel)
 {
-	struct st7701s *ctx = panel_to_st7701s(panel);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Preparing");
+
+	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: LCD Panel found at %p", ctx);
 
 	int ret = regulator_enable(ctx->supply);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: regulator returned %d", ret);
 	if (ret == 0) {
 		msleep(120);
 	}
+
 	return ret;
 }
 
-static int st7701s_unprepare(struct drm_panel *panel)
+static int jlt4013a_unprepare(struct drm_panel *panel)
 {
-	struct st7701s *ctx = panel_to_st7701s(panel);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Unpreparing");
+
+	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: LCD Panel found at %p", ctx);
 
 	int ret = regulator_disable(ctx->supply);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: regulator returned %d", ret);
 
 	return ret;
 }
 
 // This is essentially the display mode of the Jinglitai JLT4013A.
-static const struct drm_display_mode st7701s_default_display_mode = {
+static const struct drm_display_mode jlt4013a_default_display_mode = {
 	.clock = 14616,
 	.hdisplay = 480,
 	.hsync_start = 480 + 32,
@@ -92,19 +80,22 @@ static const struct drm_display_mode st7701s_default_display_mode = {
 	.height_mm = 86,
 };
 
-static int st7701s_get_modes(struct drm_panel *panel,
-			     struct drm_connector *connector)
+static int jlt4013a_get_modes(struct drm_panel *panel,
+			      struct drm_connector *connector)
 {
-	struct drm_display_mode *mode;
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Getting modes");
 
 	static const u32 bus_format = MEDIA_BUS_FMT_RGB888_1X24;
 
-	mode = drm_mode_duplicate(connector->dev,
-				  &st7701s_default_display_mode);
+	struct drm_display_mode *mode = drm_mode_duplicate(
+		connector->dev, &jlt4013a_default_display_mode);
 	if (mode == NULL) {
-		dev_err(panel->dev, "Failed to add default mode\n");
+		dev_err(panel->dev,
+			"Jinglitai JLT4013A: Failed to add default mode\n");
 		return -EAGAIN;
 	}
+
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Mode set at %p", mode);
 
 	drm_mode_set_name(mode);
 
@@ -122,21 +113,21 @@ static int st7701s_get_modes(struct drm_panel *panel,
 	return 1;
 }
 
-static const struct drm_panel_funcs st7701sfuncs = {
-	.prepare = st7701s_prepare,
-	.unprepare = st7701s_unprepare,
-	.get_modes = st7701s_get_modes,
+static const struct drm_panel_funcs jlt4013afuncs = {
+	.prepare = jlt4013a_prepare,
+	.unprepare = jlt4013a_unprepare,
+	.get_modes = jlt4013a_get_modes,
 };
 
-static int st7701s_probe(struct spi_device *spi)
+static int jlt4013a_probe(struct spi_device *spi)
 {
-	struct device *dev;
-	struct st7701s *ctx;
-	int err;
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Probing");
 
-	dev = &spi->dev;
+	struct device *dev = &spi->dev;
 
-	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Device found at %p", dev);
+
+	struct jlt4013a *ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
 	if (ctx == NULL) {
 		return -EAGAIN;
 	}
@@ -146,44 +137,50 @@ static int st7701s_probe(struct spi_device *spi)
 
 	ctx->supply = devm_regulator_get(dev, "power");
 	if (IS_ERR(ctx->supply)) {
-		dev_err(dev, "Failed to get power supply\n");
+		dev_err(dev,
+			"Jinglitai JLT4013A: Failed to get power supply\n");
 		return PTR_ERR(ctx->supply);
 	}
 
 	ctx->reset = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
 	if (IS_ERR(ctx->reset)) {
-		dev_err(dev, "Failed to get reset GPIO\n");
+		dev_err(dev, "Jinglitai JLT4013A: Failed to get reset GPIO\n");
 		return PTR_ERR(ctx->reset);
 	}
 
-	drm_panel_init(&ctx->panel, dev, &st7701sfuncs, DRM_MODE_CONNECTOR_DPI);
+	drm_panel_init(&ctx->panel, dev, &jlt4013afuncs,
+		       DRM_MODE_CONNECTOR_DPI);
 
-	err = drm_panel_of_backlight(&ctx->panel);
+	int err = drm_panel_of_backlight(&ctx->panel);
 	if (err)
 		return err;
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Backlight enabled", dev);
 
 	drm_panel_add(&ctx->panel);
 
 	return 0;
 }
 
-static int st7701s_remove(struct spi_device *spi)
+static int jlt4013a_remove(struct spi_device *spi)
 {
-	struct st7701s *ctx = spi_get_drvdata(spi);
+	printk(KERN_DEBUG "Jinglitai JLT4013A: Removing");
+
+	struct jlt4013a *ctx = spi_get_drvdata(spi);
 
 	drm_panel_remove(&(ctx->panel));
 	return 0;
 }
 
-static struct spi_driver st7701s_driver = {
-	.probe		= st7701s_probe,
-	.remove		= st7701s_remove,
+static struct spi_driver jlt4013a_driver = {
+	.probe		= jlt4013a_probe,
+	.remove		= jlt4013a_remove,
 	.driver		= {
-		.name	= "st7701s",
-		.of_match_table = st7701s_of_match,
+		.name	= "jlt4013a",
+		.of_match_table = jlt4013a_of_match,
 	},
 };
-module_spi_driver(st7701s_driver);
+module_spi_driver(jlt4013a_driver);
 
-MODULE_DESCRIPTION("Driver for ST7701S-based LCD panels, used in the JLT4013A");
+MODULE_AUTHOR("Rui Oliveira <ruimail24@gmail.com>");
+MODULE_DESCRIPTION("Driver for the Jinglitai JLT4013A LCD Panel");
 MODULE_LICENSE("GPL v2");
