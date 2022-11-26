@@ -1,8 +1,7 @@
 # Jinglitai JLT4013A LCD Panel Linux Kernel Module Driver
 
 This is a Linux Kernel Module that provides a driver for the Jinglitai JLT4013A
-LCD Panel, which uses a Sitronix ST7701S controller (thus the filename and the
-contents of the `struct of_device_id st7701s_of_match[]` array).
+LCD Panel.
 
 ## Important information
 
