@@ -4,13 +4,6 @@ This is a Linux Kernel Module that provides a driver for the Jinglitai JLT4013A
 LCD Panel, which uses a Sitronix ST7701S controller (thus the filename and the
 contents of the `struct of_device_id st7701s_of_match[]` array).
 
-## Usage
-
-You can build the module directly, or you can use the script
-`generate_kernel_patch.py` to generate a patch file that can be used to patch a
-Linux Kernel source tree. This will give you a KConfig option called
-`DRM_PANEL_SITRONIX_ST7701S` next to the other related ones.
-
 ## Important information
 
 I build the driver to be able to use custom kernels in the
