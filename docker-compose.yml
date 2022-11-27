@@ -1,0 +1,19 @@
+version: "3.4"
+
+services:
+  linux:
+    build:
+      dockerfile: Dockerfile
+    stop_signal: SIGKILL
+    volumes:
+      - .:/workspace:cached
+      - vscode_server:/root/.vscode-server
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+volumes:
+  vscode_server:

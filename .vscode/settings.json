@@ -1,0 +1,13 @@
+{
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/buildroot*/**": true,
+    "**/build/**": true
+  },
+  "files.associations": {
+    "*_defconfig": "kconfig",
+    "boot.cmd": "shellscript"
+  },
+  "redhat.telemetry.enabled": false
+}
