@@ -38,13 +38,9 @@ static inline struct jlt4013a *panel_to_jlt4013a(struct drm_panel *panel)
 
 static int jlt4013a_prepare(struct drm_panel *panel)
 {
-	printk(KERN_WARNING "Jinglitai JLT4013A: Preparing");
-
 	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
-	printk(KERN_WARNING "Jinglitai JLT4013A: LCD Panel found at %p", ctx);
 
 	int ret = regulator_enable(ctx->supply);
-	printk(KERN_WARNING "Jinglitai JLT4013A: regulator returned %d", ret);
 	if (ret == 0) {
 		msleep(120);
 	}
@@ -54,14 +50,9 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 
 static int jlt4013a_unprepare(struct drm_panel *panel)
 {
-	printk(KERN_WARNING "Jinglitai JLT4013A: Unpreparing");
-
 	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
-	printk(KERN_WARNING "Jinglitai JLT4013A: LCD Panel found at %p", ctx);
 
 	int ret = regulator_disable(ctx->supply);
-	printk(KERN_WARNING "Jinglitai JLT4013A: regulator returned %d", ret);
-
 	return ret;
 }
 
@@ -83,8 +74,6 @@ static const struct drm_display_mode jlt4013a_default_display_mode = {
 static int jlt4013a_get_modes(struct drm_panel *panel,
 			      struct drm_connector *connector)
 {
-	printk(KERN_WARNING "Jinglitai JLT4013A: Getting modes");
-
 	static const u32 bus_format = MEDIA_BUS_FMT_RGB888_1X24;
 
 	struct drm_display_mode *mode = drm_mode_duplicate(
@@ -94,8 +83,6 @@ static int jlt4013a_get_modes(struct drm_panel *panel,
 			"Jinglitai JLT4013A: Failed to add default mode\n");
 		return -EAGAIN;
 	}
-
-	printk(KERN_WARNING "Jinglitai JLT4013A: Mode set at %p", mode);
 
 	drm_mode_set_name(mode);
 
@@ -121,11 +108,7 @@ static const struct drm_panel_funcs jlt4013afuncs = {
 
 static int jlt4013a_probe(struct spi_device *spi)
 {
-	printk(KERN_WARNING "Jinglitai JLT4013A: Probing");
-
 	struct device *dev = &spi->dev;
-
-	printk(KERN_WARNING "Jinglitai JLT4013A: Device found at %p", dev);
 
 	struct jlt4013a *ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
 	if (ctx == NULL) {
@@ -154,7 +137,6 @@ static int jlt4013a_probe(struct spi_device *spi)
 	int err = drm_panel_of_backlight(&ctx->panel);
 	if (err)
 		return err;
-	printk(KERN_WARNING "Jinglitai JLT4013A: Backlight enabled", dev);
 
 	drm_panel_add(&ctx->panel);
 
@@ -163,8 +145,6 @@ static int jlt4013a_probe(struct spi_device *spi)
 
 static int jlt4013a_remove(struct spi_device *spi)
 {
-	printk(KERN_WARNING "Jinglitai JLT4013A: Removing");
-
 	struct jlt4013a *ctx = spi_get_drvdata(spi);
 
 	drm_panel_remove(&(ctx->panel));
