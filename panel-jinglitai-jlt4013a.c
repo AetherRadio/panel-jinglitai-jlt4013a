@@ -56,17 +56,16 @@ static int jlt4013a_unprepare(struct drm_panel *panel)
 	return ret;
 }
 
-// This is essentially the display mode of the Jinglitai JLT4013A.
 static const struct drm_display_mode jlt4013a_default_display_mode = {
 	.clock = 14616,
 	.hdisplay = 480,
-	.hsync_start = 480 + 32,
-	.hsync_end = 480 + 32 + 11,
-	.htotal = 480 + 32 + 11 + 2,
+	.hsync_start = 480 + 32, // 512
+	.hsync_end = 480 + 32 + 11, // 523
+	.htotal = 480 + 32 + 11 + 2, // 525
 	.vdisplay = 800,
-	.vsync_start = 800 + 54,
-	.vsync_end = 800 + 54 + 41,
-	.vtotal = 800 + 54 + 41 + 33,
+	.vsync_start = 800 + 54, // 854
+	.vsync_end = 800 + 54 + 41, // 895
+	.vtotal = 800 + 54 + 41 + 33, // 928
 	.width_mm = 52,
 	.height_mm = 86,
 };
@@ -74,8 +73,6 @@ static const struct drm_display_mode jlt4013a_default_display_mode = {
 static int jlt4013a_get_modes(struct drm_panel *panel,
 			      struct drm_connector *connector)
 {
-	static const u32 bus_format = MEDIA_BUS_FMT_RGB888_1X24;
-
 	struct drm_display_mode *mode = drm_mode_duplicate(
 		connector->dev, &jlt4013a_default_display_mode);
 	if (mode == NULL) {
@@ -91,9 +88,12 @@ static int jlt4013a_get_modes(struct drm_panel *panel,
 	connector->display_info.width_mm = mode->width_mm;
 	connector->display_info.height_mm = mode->height_mm;
 	connector->display_info.bpc = 8;
-	connector->display_info.bus_flags = DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE;
+	connector->display_info.bus_flags =
+		DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE; // 4
 
 	drm_mode_probed_add(connector, mode);
+
+	static const u32 bus_format = MEDIA_BUS_FMT_RGB888_1X24;
 	drm_display_info_set_bus_formats(&connector->display_info, &bus_format,
 					 1);
 
