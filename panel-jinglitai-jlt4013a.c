@@ -100,10 +100,22 @@ static int jlt4013a_get_modes(struct drm_panel *panel,
 	return 1;
 }
 
+static int jlt4013a_enable(void)
+{
+	return 0;
+}
+
+static int jlt4013a_disable(void)
+{
+	return 0;
+}
+
 static const struct drm_panel_funcs jlt4013afuncs = {
 	.prepare = jlt4013a_prepare,
 	.unprepare = jlt4013a_unprepare,
 	.get_modes = jlt4013a_get_modes,
+	.enable = jlt4013a_enable,
+	.disable = jlt4013a_disable,
 };
 
 static int jlt4013a_probe(struct spi_device *spi)
