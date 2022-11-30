@@ -100,12 +100,12 @@ static int jlt4013a_get_modes(struct drm_panel *panel,
 	return 1;
 }
 
-static int jlt4013a_enable(void)
+static int jlt4013a_enable(struct drm_panel *panel)
 {
 	return 0;
 }
 
-static int jlt4013a_disable(void)
+static int jlt4013a_disable(struct drm_panel *panel)
 {
 	return 0;
 }
