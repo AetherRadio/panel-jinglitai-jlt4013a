@@ -26,9 +26,9 @@ gpiochip0: GPIOs 0-255, parent: platform/1c20800.pinctrl, 1c20800.pinctrl:
  gpio-232 (                    |usb0_id_det         ) in  hi
 
 gpiochip1: GPIOs 352-383, parent: platform/1f02c00.pinctrl, 1f02c00.pinctrl:
- gpio-357 (                    |sysfs               ) out lo
- gpio-358 (                    |enable              ) out hi
- gpio-359 (                    |spi0 CS0            ) out hi ACTIVE LOW
- gpio-360 (                    |mosi                ) out lo
- gpio-361 (                    |sck                 ) out lo
- gpio-363 (                    |reset               ) out hi ACTIVE LOW
+ gpio-357 (                    |sysfs               ) out lo             // PL5
+ gpio-358 (                    |enable              ) out hi             // PL6
+ gpio-359 (                    |spi0 CS0            ) out hi ACTIVE LOW  // PL7
+ gpio-360 (                    |mosi                ) out lo             // PL8
+ gpio-361 (                    |sck                 ) out lo             // PL9
+ gpio-363 (                    |reset               ) out hi ACTIVE LOW  // PL10
