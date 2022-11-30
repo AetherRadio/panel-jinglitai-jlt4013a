@@ -1,0 +1,32 @@
+cat /sys/kernel/debug/gpio
+gpiochip0: GPIOs 0-255, parent: platform/1c20800.pinctrl, 1c20800.pinctrl:
+ gpio-34  (                    |rotary@0            ) in  lo IRQ ACTIVE LOW
+ gpio-35  (                    |rotary@0            ) in  hi IRQ ACTIVE LOW
+ gpio-36  (                    |rotary@1            ) in  hi IRQ ACTIVE LOW
+ gpio-37  (                    |rotary@3            ) in  hi IRQ ACTIVE LOW
+ gpio-38  (                    |rotary@1            ) in  hi IRQ ACTIVE LOW
+ gpio-39  (                    |rotary@3            ) in  hi IRQ ACTIVE LOW
+ gpio-64  (                    |reset               ) out lo ACTIVE LOW
+ gpio-108 (                    |usb1_vbus           ) out lo
+ gpio-131 (                    |cd                  ) in  hi ACTIVE LOW
+ gpio-138 (                    |sysfs               ) out hi
+ gpio-139 (                    |matrix_kbd_col      ) out lo
+ gpio-140 (                    |matrix_kbd_col      ) out lo
+ gpio-141 (                    |matrix_kbd_col      ) out lo
+ gpio-142 (                    |matrix_kbd_col      ) out lo
+ gpio-143 (                    |sysfs               ) out hi
+ gpio-144 (                    |matrix_kbd_col      ) out lo
+ gpio-145 (                    |matrix_kbd_col      ) out lo
+ gpio-198 (                    |matrix_kbd_row      ) in  hi
+ gpio-199 (                    |matrix_kbd_row      ) in  hi
+ gpio-200 (                    |matrix_kbd_row      ) in  hi
+ gpio-201 (                    |matrix_kbd_row      ) in  hi
+ gpio-202 (                    |matrix_kbd_row      ) in  hi
+ gpio-232 (                    |usb0_id_det         ) in  hi
+
+gpiochip1: GPIOs 352-383, parent: platform/1f02c00.pinctrl, 1f02c00.pinctrl:
+ gpio-357 (                    |sysfs               ) out lo
+ gpio-358 (                    |enable              ) out hi
+ gpio-359 (                    |spi0 CS0            ) out hi ACTIVE LOW
+ gpio-360 (                    |mosi                ) out lo
+ gpio-361 (                    |sck                 ) out lo
