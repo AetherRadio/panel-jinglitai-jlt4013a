@@ -31,3 +31,4 @@ gpiochip1: GPIOs 352-383, parent: platform/1f02c00.pinctrl, 1f02c00.pinctrl:
  gpio-359 (                    |spi0 CS0            ) out hi ACTIVE LOW
  gpio-360 (                    |mosi                ) out lo
  gpio-361 (                    |sck                 ) out lo
+ gpio-363 (                    |reset               ) out hi ACTIVE LOW
