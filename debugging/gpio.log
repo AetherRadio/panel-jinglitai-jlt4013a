@@ -1,4 +1,5 @@
-cat /sys/kernel/debug/gpio
+# mount -t debugfs debugfs /sys/kernel/debug
+# cat /sys/kernel/debug/gpio
 gpiochip0: GPIOs 0-255, parent: platform/1c20800.pinctrl, 1c20800.pinctrl:
  gpio-34  (                    |rotary@0            ) in  lo IRQ ACTIVE LOW
  gpio-35  (                    |rotary@0            ) in  hi IRQ ACTIVE LOW
