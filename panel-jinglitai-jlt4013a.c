@@ -96,11 +96,13 @@ static int st7701s_spi_write(struct jlt4013a *ctx, enum st7701s_prefix prefix,
 
 static int st7701s_write_command(struct jlt4013a *ctx, u8 cmd)
 {
+	pr_info("Jinglitai JLT4013A: Writing SPI command with value %x\n", cmd);
 	return st7701s_spi_write(ctx, ST7701S_COMMAND, cmd);
 }
 
 static int st7701s_write_data(struct jlt4013a *ctx, u8 cmd)
 {
+	pr_info("Jinglitai JLT4013A: Writing SPI data with value %x\n", cmd);
 	return st7701s_spi_write(ctx, ST7701S_DATA, cmd);
 }
 
@@ -111,25 +113,30 @@ static inline struct jlt4013a *panel_to_jlt4013a(struct drm_panel *panel)
 
 static int jlt4013a_prepare(struct drm_panel *panel)
 {
+	int ret;
 	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
 
 	/* Enable power supply */
 
-	int ret = regulator_enable(ctx->supply);
+	pr_info("Jinglitai JLT4013A: Trying to enable power supply\n");
+	ret = regulator_enable(ctx->supply);
 	if (ret) {
-		pr_warn("Jinglitai JLT4013A: Failed to enable power supply\n");
+		pr_err("Jinglitai JLT4013A: Failed to enable power supply\n");
 		return ret;
 	}
 	msleep(120);
+	pr_info("Jinglitai JLT4013A: Enabled power supply\n");
 
 	/* Reset routine */
-
+	pr_info("Jinglitai JLT4013A: Doing the reset routine\n");
 	gpiod_set_value(ctx->reset, 1);
 	msleep(120);
 	gpiod_set_value(ctx->reset, 0);
 	msleep(120); // Sleep mandated by the datasheet
+	pr_info("Jinglitai JLT4013A: Panel is reset\n");
 
 	/* Initialization routine */
+	pr_info("Jinglitai JLT4013A: Doing the initialization routine\n");
 
 	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_SLPOUT));
 	msleep(120);
@@ -379,6 +386,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 
 	msleep(120);
 
+	pr_info("Jinglitai JLT4013A: Panel is initialized\n");
 	return ret;
 }
 
