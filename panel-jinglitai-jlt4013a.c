@@ -115,7 +115,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	/* Enable power supply */
 	int ret = regulator_enable(ctx->supply);
 	if (ret) {
-		dev_err(dev, "Failed to enable power supply: %d\n", err);
+		pr_warn("Jinglitai JLT4013A: Failed to enable power supply\n");
 		return ret;
 	}
 
@@ -123,7 +123,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 
 	/* Reset routine */
 	gpiod_set_value(ctx->reset, 1);
-	msleep(30);
+	msleep(120);
 	gpiod_set_value(ctx->reset, 0);
 	msleep(120); // Sleep mandated by the datasheet
 
