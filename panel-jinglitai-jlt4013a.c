@@ -113,15 +113,16 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
 
 	/* Enable power supply */
+
 	int ret = regulator_enable(ctx->supply);
 	if (ret) {
 		pr_warn("Jinglitai JLT4013A: Failed to enable power supply\n");
 		return ret;
 	}
-
 	msleep(120);
 
 	/* Reset routine */
+
 	gpiod_set_value(ctx->reset, 1);
 	msleep(120);
 	gpiod_set_value(ctx->reset, 0);
@@ -405,6 +406,8 @@ static const struct drm_display_mode jlt4013a_default_display_mode = {
 static int jlt4013a_get_modes(struct drm_panel *panel,
 			      struct drm_connector *connector)
 {
+	static const u32 bus_format = MEDIA_BUS_FMT_RGB888_1X24;
+
 	struct drm_display_mode *mode = drm_mode_duplicate(
 		connector->dev, &jlt4013a_default_display_mode);
 	if (mode == NULL) {
@@ -425,7 +428,6 @@ static int jlt4013a_get_modes(struct drm_panel *panel,
 
 	drm_mode_probed_add(connector, mode);
 
-	static const u32 bus_format = MEDIA_BUS_FMT_RGB888_1X24;
 	drm_display_info_set_bus_formats(&connector->display_info, &bus_format,
 					 1);
 
@@ -452,6 +454,8 @@ static const struct drm_panel_funcs jlt4013afuncs = {
 
 static int jlt4013a_probe(struct spi_device *spi)
 {
+	int err;
+
 	struct device *dev = &spi->dev;
 
 	struct jlt4013a *ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
@@ -478,7 +482,7 @@ static int jlt4013a_probe(struct spi_device *spi)
 	drm_panel_init(&ctx->panel, dev, &jlt4013afuncs,
 		       DRM_MODE_CONNECTOR_DPI);
 
-	int err = drm_panel_of_backlight(&ctx->panel);
+	err = drm_panel_of_backlight(&ctx->panel);
 	if (err)
 		return err;
 
