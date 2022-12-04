@@ -3,6 +3,7 @@
  * Driver for the Jinglitai JLT4013A LCD Panel.
  *
  * Copyright (C) Rui Oliveira 2022
+ * Copyright (C) Oleg Belousov 2022
  */
 
 #include <linux/delay.h>
@@ -22,6 +23,16 @@
 #define ST7701S_SLPOUT      0x11
 #define ST7701S_DISPOFF     0x28
 #define ST7701S_DISPON      0x29
+
+#define ST7701S_CN2BKxSEL   0xFF
+
+/* BK0 */
+
+#define ST7701S_LNESET      0xC0
+#define ST7701S_PORCTRL     0xC1
+#define ST7701S_INVSET      0xC2
+#define ST7701S_PVGAMCTRL   0xB0
+#define ST7701S_NVGAMCTRL   0xB1
 
 #define ST7701S_TEST(val, func)			\
 	do {					\
@@ -95,6 +106,69 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 
 	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_SLPOUT));
 	msleep(120);
+
+	/* BK0 */
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x77));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_LNESET));	/* 854 as Table 12.3.2.7 */
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xE9));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x03));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_PORCTRL));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x11));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x02));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_INVSET));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x31));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x03));
+
+	/* Not in documentation
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xCC));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
+	*/
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_PVGAMCTRL));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x40));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x46));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x13));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x05));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x1B));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x07));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x15));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x12));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x4C));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xC8));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_NVGAMCTRL));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x40));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x86));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x13));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x05));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x1F));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x07));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x15));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x12));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x15));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x19));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x08));
+
 
 	return ret;
 }
