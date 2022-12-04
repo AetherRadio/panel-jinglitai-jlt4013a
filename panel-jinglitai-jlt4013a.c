@@ -423,8 +423,7 @@ static int jlt4013a_get_modes(struct drm_panel *panel,
 	connector->display_info.width_mm = mode->width_mm;
 	connector->display_info.height_mm = mode->height_mm;
 	connector->display_info.bpc = 8;
-	connector->display_info.bus_flags =
-		DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE; // 4
+	connector->display_info.bus_flags = DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE;
 
 	drm_mode_probed_add(connector, mode);
 
