@@ -49,10 +49,13 @@
 #define ST7701S_SPD2 0xC2
 #define ST7701S_MIPISET1 0xD0
 
-#define ST7701S_TRY(val, func)      \
-	do {                        \
-		if ((val = (func))) \
-			return val; \
+#define ST7701S_TRY(val, func)                                                          \
+	do {                                                                            \
+		if ((val = (func))) {                                                   \
+			pr_warn("Jinglitai JLT4013A: SPI write failed with error %d\n", \
+				val);                                                   \
+			return val;                                                     \
+		}                                                                       \
 	} while (0)
 
 static const struct of_device_id jlt4013a_of_match[] = {
