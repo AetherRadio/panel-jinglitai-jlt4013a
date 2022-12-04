@@ -18,6 +18,17 @@
 #include <linux/gpio/consumer.h>
 #include <linux/media-bus-format.h>
 
+#define ST7701S_SWRESET     0x01
+#define ST7701S_SLPOUT      0x11
+#define ST7701S_DISPOFF     0x28
+#define ST7701S_DISPON      0x29
+
+#define ST7701S_TEST(val, func)			\
+	do {					\
+		if ((val = (func)))		\
+			return val;		\
+	} while (0)
+
 static const struct of_device_id jlt4013a_of_match[] = {
 	{ .compatible = "jinglitai,jlt4013a" },
 	{ /* sentinel */ }
@@ -31,6 +42,37 @@ struct jlt4013a {
 	struct regulator *supply;
 };
 
+enum st7701s_prefix {
+	ST7701S_COMMAND = 0,
+	ST7701S_DATA = 1,
+};
+
+static int st7701s_spi_write(struct jlt4013a *ctx, enum st7701s_prefix prefix, u8 data)
+{
+	struct spi_transfer xfer = { };
+	struct spi_message msg;
+	u16 txbuf = ((prefix & 1) << 8) | data;
+
+	spi_message_init(&msg);
+
+	xfer.tx_buf = &txbuf;
+	xfer.bits_per_word = 9;
+	xfer.len = sizeof(txbuf);
+
+	spi_message_add_tail(&xfer, &msg);
+	return spi_sync(ctx->spi, &msg);
+}
+
+static int st7701s_write_command(struct jlt4013a *ctx, u8 cmd)
+{
+	return st7701s_spi_write(ctx, ST7701S_COMMAND, cmd);
+}
+
+static int st7701s_write_data(struct jlt4013a *ctx, u8 cmd)
+{
+	return st7701s_spi_write(ctx, ST7701S_DATA, cmd);
+}
+
 static inline struct jlt4013a *panel_to_jlt4013a(struct drm_panel *panel)
 {
 	return container_of(panel, struct jlt4013a, panel);
@@ -41,9 +83,18 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
 
 	int ret = regulator_enable(ctx->supply);
-	if (ret == 0) {
-		msleep(120);
-	}
+	if (ret)
+		return ret;
+		
+	msleep(120);
+
+	gpiod_set_value(ctx->reset, 1);
+	msleep(30);
+	gpiod_set_value(ctx->reset, 0);
+	msleep(120);
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_SLPOUT));
+	msleep(120);
 
 	return ret;
 }
