@@ -59,6 +59,7 @@
 	} while (0)
 
 static const struct of_device_id jlt4013a_of_match[] = {
+	{ .compatible = "sitronix,st7701s" },
 	{ .compatible = "jinglitai,jlt4013a" },
 	{ /* sentinel */ }
 };
