@@ -109,16 +109,22 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 {
 	struct jlt4013a *ctx = panel_to_jlt4013a(panel);
 
+	/* Enable power supply */
 	int ret = regulator_enable(ctx->supply);
-	if (ret)
+	if (ret) {
+		dev_err(dev, "Failed to enable power supply: %d\n", err);
 		return ret;
+	}
 
 	msleep(120);
 
+	/* Reset routine */
 	gpiod_set_value(ctx->reset, 1);
 	msleep(30);
 	gpiod_set_value(ctx->reset, 0);
-	msleep(120);
+	msleep(120); // Sleep mandated by the datasheet
+
+	/* Initialization routine */
 
 	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_SLPOUT));
 	msleep(120);
@@ -305,7 +311,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x44));
 
 	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE8));
-	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0D)); /* Not shure */
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0D)); /* Not sure */
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
@@ -336,7 +342,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
 
 	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xED));
-	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xAB)); /* Not shure */
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xAB)); /* Not sure */
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x89));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x76));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x54));
