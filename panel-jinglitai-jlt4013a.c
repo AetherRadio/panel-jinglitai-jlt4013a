@@ -49,10 +49,10 @@
 #define ST7701S_SPD2 0xC2
 #define ST7701S_MIPISET1 0xD0
 
-#define ST7701S_RETURN_IF_ERR(val, func) \
-	do {                             \
-		if ((val = (func)))      \
-			return val;      \
+#define ST7701S_TRY(val, func)      \
+	do {                        \
+		if ((val = (func))) \
+			return val; \
 	} while (0)
 
 static const struct of_device_id jlt4013a_of_match[] = {
@@ -126,261 +126,251 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 
 	/* Initialization routine */
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_SLPOUT));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_SLPOUT));
 	msleep(120);
 
 	/* BK0 */
 
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x77));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x01));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x77));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x10));
 
 	/* Line below: 854 as Table 12.3.2.7 */
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_LNESET));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xE9));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x03));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_LNESET));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xE9));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x03));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_PORCTRL));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x11));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_PORCTRL));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x11));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x02));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_INVSET));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x31));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x03));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_INVSET));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x31));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x03));
 
 	/* Something strange */
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xCC));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xCC));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x10));
 
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_command(ctx, ST7701S_PVGAMCTRL));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x40));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x01));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x46));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x0D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x13));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x05));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x1B));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x07));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x15));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x12));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x4C));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x10));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xC8));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_PVGAMCTRL));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x40));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x46));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x13));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x05));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x1B));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x07));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x15));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x12));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x4C));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xC8));
 
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_command(ctx, ST7701S_NVGAMCTRL));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x40));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x02));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x86));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x0D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x13));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x05));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x1F));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x07));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x15));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x12));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x15));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x19));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x08));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_NVGAMCTRL));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x40));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x86));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x13));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x05));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x1F));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x07));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x15));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x12));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x15));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x19));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x08));
 
 	/* BK1 */
 
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x77));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x01));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x11));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x77));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x11));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_VRHS));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x50));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_VRHS));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x50));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_VCOM));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x68));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_VCOM));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x68));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_VGHSS));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x07));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_VGHSS));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x07));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_TESTCMD));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x80));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_TESTCMD));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x80));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_VGLS));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x47));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_VGLS));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x47));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_PWCTRL1));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x85));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_PWCTRL1));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x85));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_PWCTRL2));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x21));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_PWCTRL2));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x21));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_PWCTRL3));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_PWCTRL3));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x10));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_SPD1));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x21));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x36));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_SPD1));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x21));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x36));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_SPD2));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x78));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_SPD2));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x78));
 
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_command(ctx, ST7701S_MIPISET1));
-	ST7701S_RETURN_IF_ERR(
-		ret, st7701s_write_data(ctx, 0b01001001)); /* CRC error only? */
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_MIPISET1));
+	ST7701S_TRY(ret,
+		    st7701s_write_data(ctx, 0b01001001)); /* CRC error only? */
 
 	/* Something strange */
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE0));
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_data(ctx, 0x00)); /* Not sure */
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x02));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE1));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x08));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x0A));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x07));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x33));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE1));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x08));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0A));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x07));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x33));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE2));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE2));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE3));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x33));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE3));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x33));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE4));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x44));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE4));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x44));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE5));
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_data(ctx, 0x0E)); /* Not sure */
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x10));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x0A));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x0C));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE5));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0E)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0A));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0C));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE6));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x33));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE6));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x33));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE7));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x44));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE7));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x44));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xE8));
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_data(ctx, 0x0D)); /* Not sure */
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x0F));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x09));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x0B));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x2D));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE8));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0D)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0F));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0B));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xEB));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x02));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x01));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xE4));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xE4));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x44));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x40));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xEB));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xE4));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xE4));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x40));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xEC));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x02));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xEC));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, 0xED));
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_data(ctx, 0xAB)); /* Not sure */
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x89));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x76));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x54));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x01));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xFF));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xFF));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xFF));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xFF));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xFF));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xFF));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x10));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x45));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x67));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x98));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0xBA));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xED));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xAB)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x89));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x76));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x54));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x45));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x67));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x98));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xBA));
 
 	/* BK disable */
 
-	ST7701S_RETURN_IF_ERR(ret,
-			      st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x77));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x01));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x77));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_COLMOD));
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_data(ctx, 0x70));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_COLMOD));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x70));
 
-	ST7701S_RETURN_IF_ERR(ret, st7701s_write_command(ctx, ST7701S_DISPON));
+	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_DISPON));
 
 	msleep(120);
 
