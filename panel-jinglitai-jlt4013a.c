@@ -19,25 +19,50 @@
 #include <linux/gpio/consumer.h>
 #include <linux/media-bus-format.h>
 
-#define ST7701S_SWRESET     0x01
-#define ST7701S_SLPOUT      0x11
-#define ST7701S_DISPOFF     0x28
-#define ST7701S_DISPON      0x29
+#define ST7701S_SWRESET 0x01
+#define ST7701S_SLPOUT 0x11
+#define ST7701S_DISPOFF 0x28
+#define ST7701S_DISPON 0x29
+#define ST7701S_COLMOD 0x3A
 
-#define ST7701S_CN2BKxSEL   0xFF
+#define ST7701S_CN2BKxSEL 0xFF
 
 /* BK0 */
 
-#define ST7701S_LNESET      0xC0
-#define ST7701S_PORCTRL     0xC1
-#define ST7701S_INVSET      0xC2
-#define ST7701S_PVGAMCTRL   0xB0
-#define ST7701S_NVGAMCTRL   0xB1
+#define ST7701S_LNESET 0xC0
+#define ST7701S_PORCTRL 0xC1
+#define ST7701S_INVSET 0xC2
+#define ST7701S_PVGAMCTRL 0xB0
+#define ST7701S_NVGAMCTRL 0xB1
 
-#define ST7701S_TEST(val, func)			\
-	do {					\
-		if ((val = (func)))		\
-			return val;		\
+/* BK1 */
+
+#define ST7701S_VRHS 0xB0
+#define ST7701S_VCOM 0xB1
+#define ST7701S_VGHSS 0xB2
+#define ST7701S_TESTCMD 0xB3
+#define ST7701S_VGLS 0xB5
+#define ST7701S_PWCTRL1 0xB7
+#define ST7701S_PWCTRL2 0xB8
+#define ST7701S_PWCTRL3 0xB9
+#define ST7701S_SPD1 0xC1
+#define ST7701S_SPD2 0xC2
+#define ST7701S_MIPISET1 0xD0
+
+#define ST7701S_CN2BKxSEL 0xFF
+
+/* BK0 */
+
+#define ST7701S_LNESET 0xC0
+#define ST7701S_PORCTRL 0xC1
+#define ST7701S_INVSET 0xC2
+#define ST7701S_PVGAMCTRL 0xB0
+#define ST7701S_NVGAMCTRL 0xB1
+
+#define ST7701S_TEST(val, func)     \
+	do {                        \
+		if ((val = (func))) \
+			return val; \
 	} while (0)
 
 static const struct of_device_id jlt4013a_of_match[] = {
@@ -58,9 +83,10 @@ enum st7701s_prefix {
 	ST7701S_DATA = 1,
 };
 
-static int st7701s_spi_write(struct jlt4013a *ctx, enum st7701s_prefix prefix, u8 data)
+static int st7701s_spi_write(struct jlt4013a *ctx, enum st7701s_prefix prefix,
+			     u8 data)
 {
-	struct spi_transfer xfer = { };
+	struct spi_transfer xfer = {};
 	struct spi_message msg;
 	u16 txbuf = ((prefix & 1) << 8) | data;
 
@@ -96,7 +122,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	int ret = regulator_enable(ctx->supply);
 	if (ret)
 		return ret;
-		
+
 	msleep(120);
 
 	gpiod_set_value(ctx->reset, 1);
@@ -116,7 +142,9 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
 
-	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_LNESET));	/* 854 as Table 12.3.2.7 */
+	ST7701S_TEST(ret,
+		     st7701s_write_command(
+			     ctx, ST7701S_LNESET)); /* 854 as Table 12.3.2.7 */
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xE9));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x03));
 
@@ -128,10 +156,10 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x31));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x03));
 
-	/* Not in documentation
+	/* Something strange */
+
 	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xCC));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
-	*/
 
 	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_PVGAMCTRL));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x40));
@@ -169,6 +197,187 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x19));
 	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x08));
 
+	/* BK1 */
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x77));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x11));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_VRHS));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x50));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_VCOM));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x68));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_VGHSS));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x07));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_TESTCMD));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x80));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_VGLS));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x47));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_PWCTRL1));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x85));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_PWCTRL2));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x21));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_PWCTRL3));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_SPD1));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x21));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x36));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_SPD2));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x78));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_MIPISET1));
+	ST7701S_TEST(ret,
+		     st7701s_write_data(ctx, 0b01001001)); /* CRC error only? */
+
+	/* Something strange */
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00)); /* Not sure */
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x02));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE1));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x08));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0A));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x07));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x33));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE2));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE3));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x33));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE4));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x44));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE5));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0E)); /* Not sure */
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0A));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0C));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE6));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x33));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x33));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE7));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x44));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xE8));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0D)); /* Not shure */
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0F));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x09));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x0B));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x2D));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xA0));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xEB));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xE4));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xE4));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x44));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x40));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xEC));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x02));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, 0xED));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xAB)); /* Not shure */
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x89));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x76));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x54));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xFF));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x10));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x45));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x67));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x98));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0xBA));
+
+	/* BK disable */
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_CN2BKxSEL));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x77));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x01));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x00));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_COLMOD));
+	ST7701S_TEST(ret, st7701s_write_data(ctx, 0x70));
+
+	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_DISPON));
+
+	msleep(120);
 
 	return ret;
 }
