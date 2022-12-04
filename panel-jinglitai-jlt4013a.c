@@ -49,16 +49,6 @@
 #define ST7701S_SPD2 0xC2
 #define ST7701S_MIPISET1 0xD0
 
-#define ST7701S_CN2BKxSEL 0xFF
-
-/* BK0 */
-
-#define ST7701S_LNESET 0xC0
-#define ST7701S_PORCTRL 0xC1
-#define ST7701S_INVSET 0xC2
-#define ST7701S_PVGAMCTRL 0xB0
-#define ST7701S_NVGAMCTRL 0xB1
-
 #define ST7701S_TEST(val, func)     \
 	do {                        \
 		if ((val = (func))) \
