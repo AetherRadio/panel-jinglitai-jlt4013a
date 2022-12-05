@@ -517,5 +517,6 @@ static struct spi_driver jlt4013a_driver = {
 module_spi_driver(jlt4013a_driver);
 
 MODULE_AUTHOR("Rui Oliveira <ruimail24@gmail.com>");
+MODULE_AUTHOR("Oleg Belousov <www.strijar.ru>");
 MODULE_DESCRIPTION("Driver for the Jinglitai JLT4013A LCD Panel");
 MODULE_LICENSE("GPL v2");
