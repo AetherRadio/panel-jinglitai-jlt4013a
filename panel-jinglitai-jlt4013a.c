@@ -65,26 +65,20 @@ struct jlt4013a {
 	struct drm_panel panel;
 	struct spi_device *spi;
 	struct gpio_desc *reset;
+	struct gpio_desc *dcx;
 	struct regulator *supply;
 };
 
-enum st7701s_prefix {
-	ST7701S_COMMAND = 0,
-	ST7701S_DATA = 1,
-};
-
-static int st7701s_spi_write(struct jlt4013a *ctx, enum st7701s_prefix prefix,
-			     u8 data)
+static int st7701s_spi_write(struct jlt4013a *ctx, u8 data)
 {
 	struct spi_transfer xfer = {};
 	struct spi_message msg;
-	u16 txbuf = ((prefix & 1) << 8) | data;
 
 	spi_message_init(&msg);
 
-	xfer.tx_buf = &txbuf;
-	xfer.bits_per_word = 9;
-	xfer.len = sizeof(txbuf);
+	xfer.tx_buf = &data;
+	xfer.bits_per_word = 8;
+	xfer.len = sizeof(data);
 
 	spi_message_add_tail(&xfer, &msg);
 	return spi_sync(ctx->spi, &msg);
@@ -92,12 +86,16 @@ static int st7701s_spi_write(struct jlt4013a *ctx, enum st7701s_prefix prefix,
 
 static int st7701s_write_command(struct jlt4013a *ctx, u8 cmd)
 {
-	return st7701s_spi_write(ctx, ST7701S_COMMAND, cmd);
+	gpiod_set_value(ctx->dcx, 0);
+
+	return st7701s_spi_write(ctx, cmd);
 }
 
 static int st7701s_write_data(struct jlt4013a *ctx, u8 cmd)
 {
-	return st7701s_spi_write(ctx, ST7701S_DATA, cmd);
+	gpiod_set_value(ctx->dcx, 1);
+
+	return st7701s_spi_write(ctx, cmd);
 }
 
 static inline struct jlt4013a *panel_to_jlt4013a(struct drm_panel *panel)
@@ -230,6 +228,8 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TEST(ret, st7701s_write_command(ctx, ST7701S_MIPISET1));
 	ST7701S_TEST(ret,
 		     st7701s_write_data(ctx, 0b01001001)); /* CRC error only? */
+
+	msleep(120);
 
 	/* Something strange */
 
@@ -465,6 +465,12 @@ static int jlt4013a_probe(struct spi_device *spi)
 	if (IS_ERR(ctx->reset)) {
 		dev_err(dev, "Jinglitai JLT4013A: Failed to get reset GPIO\n");
 		return PTR_ERR(ctx->reset);
+	}
+
+	ctx->dcx = devm_gpiod_get(dev, "dcx", GPIOD_OUT_LOW);
+	if (IS_ERR(ctx->dcx)) {
+		dev_err(dev, "Jinglitai JLT4013A: Failed to get dcx GPIO\n");
+		return PTR_ERR(ctx->dcx);
 	}
 
 	drm_panel_init(&ctx->panel, dev, &jlt4013afuncs,
