@@ -150,11 +150,6 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x10));
 
-	/* Line below: 854 as Table 12.3.2.7 */
-	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_LNESET));
-	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xE9));
-	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x03));
-
 	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_PORCTRL));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x11));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x02));
@@ -244,16 +239,12 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_SPD2));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x78));
 
-	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_MIPISET1));
-	ST7701S_TRY(ret,
-		    st7701s_write_data(ctx, 0b01001001)); /* CRC error only? */
-
 	msleep(120);
 
 	/* Something strange */
 
 	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE0));
-	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x02));
 
@@ -296,7 +287,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x44));
 
 	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE5));
-	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0E)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0E));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
@@ -324,7 +315,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x44));
 
 	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xE8));
-	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0D)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x0D));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x2D));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xA0));
@@ -355,7 +346,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x01));
 
 	ST7701S_TRY(ret, st7701s_write_command(ctx, 0xED));
-	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xAB)); /* Not sure */
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0xAB));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x89));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x76));
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x54));
@@ -382,7 +373,7 @@ static int jlt4013a_prepare(struct drm_panel *panel)
 	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x00));
 
 	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_COLMOD));
-	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x70));
+	ST7701S_TRY(ret, st7701s_write_data(ctx, 0x77));
 
 	ST7701S_TRY(ret, st7701s_write_command(ctx, ST7701S_DISPON));
 
@@ -401,7 +392,7 @@ static int jlt4013a_unprepare(struct drm_panel *panel)
 }
 
 static const struct drm_display_mode jlt4013a_default_display_mode = {
-	.clock = 14616,
+	.clock = 27000,
 	.hdisplay = 480,
 	.hsync_start = 480 + 32, // 512
 	.hsync_end = 480 + 32 + 11, // 523
