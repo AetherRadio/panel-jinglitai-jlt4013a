@@ -18,6 +18,7 @@
 #include <linux/regulator/consumer.h>
 #include <linux/gpio/consumer.h>
 #include <linux/media-bus-format.h>
+#include <linux/version.h>
 
 #define ST7701S_SWRESET 0x01
 #define ST7701S_SLPOUT 0x11
@@ -498,6 +499,14 @@ static int jlt4013a_probe(struct spi_device *spi)
 	return 0;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,0,0)
+static void jlt4013a_remove(struct spi_device *spi)
+{
+	struct jlt4013a *ctx = spi_get_drvdata(spi);
+
+	drm_panel_remove(&(ctx->panel));
+}
+#else
 static int jlt4013a_remove(struct spi_device *spi)
 {
 	struct jlt4013a *ctx = spi_get_drvdata(spi);
@@ -505,6 +514,7 @@ static int jlt4013a_remove(struct spi_device *spi)
 	drm_panel_remove(&(ctx->panel));
 	return 0;
 }
+#endif
 
 static struct spi_driver jlt4013a_driver = {
 	.probe		= jlt4013a_probe,
